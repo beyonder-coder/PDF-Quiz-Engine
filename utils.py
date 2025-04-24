@@ -2,17 +2,20 @@ import PyPDF2
 import io
 
 def extract_text_from_pdf(uploaded_pdf):
-    # Read the file content as bytes
+    # Debugging: print type of uploaded_pdf
+    print(type(uploaded_pdf))  # This should be <class 'streamlit.runtime.uploaded_file.UploadedFile'>
+
+    # Ensure the file is read properly
     pdf_bytes = uploaded_pdf.read()
-    # Use PdfReader to read from the bytes
     reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
     text = ""
-    
+
     # Loop through each page and extract text
     for page in reader.pages:
         text += page.extract_text() + "\n"
-    
+
     return text
+
 
 # Function to parse questions and answers from merged PDF
 def parse_merged_pdf(raw_text):
