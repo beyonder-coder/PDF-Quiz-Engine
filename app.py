@@ -71,7 +71,13 @@ if "started" in st.session_state and st.session_state.started:
     q = st.session_state.questions[st.session_state.index]
     st.subheader(f"Q{st.session_state.index + 1}: {q['question']}")
 
+    if len(q['options']) >= 2:
     user_answer = st.radio("Choose your answer:", q['options'], index=-1, key=f"q{st.session_state.index}")
+    if user_answer:
+        st.session_state.marked[st.session_state.index + 1] = user_answer[1]
+else:
+    st.warning("⚠️ This question is not properly formatted or missing options. Skipping...")
+
     if user_answer:
         st.session_state.marked[st.session_state.index + 1] = user_answer[1]
 
