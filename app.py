@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from utils import extract_text_from_pdf, parse_questions, parse_answer_key
+from utils import extract_text_from_pdf, parse_merged_pdf
 
 st.set_page_config(layout="wide")
 
@@ -36,7 +36,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<p class="title">📄 PDF Quiz Engine - NEET Style</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Upload your test PDFs and start your quiz!</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Upload your merged test PDFs and start your quiz!</p>', unsafe_allow_html=True)
 
 # Session state init
 for key in ["questions", "answers", "marked", "started", "index", "review", "time_left"]:
@@ -46,40 +46,29 @@ for key in ["questions", "answers", "marked", "started", "index", "review", "tim
 # Upload
 col1, col2 = st.columns(2)
 with col1:
-    uploaded_q_pdf = st.file_uploader("📝 Questions PDF", type=["pdf"])
-with col2:
-    uploaded_a_pdf = st.file_uploader("✅ Answer Key PDF", type=["pdf"])
+    uploaded_pdf = st.file_uploader("📝 Upload Merged PDF (Questions + Answer Key)", type=["pdf"])
 
 set_time = st.number_input("⏱️ Set Time Limit (minutes)", min_value=1, value=40)
 progress_bar = st.progress(0)
 
 # Analyze
-if uploaded_q_pdf and uploaded_a_pdf:
-    with st.spinner("🔍 Analyzing PDFs..."):
-        raw_q_text = extract_text_from_pdf(uploaded_q_pdf)
-        raw_a_text = extract_text_from_pdf(uploaded_a_pdf)
+if uploaded_pdf:
+    with st.spinner("🔍 Analyzing Merged PDF..."):
+        raw_text = extract_text_from_pdf(uploaded_pdf)
 
-        st.session_state.questions = parse_questions(raw_q_text)
-        st.session_state.answers = parse_answer_key(raw_a_text)
+        st.session_state.questions, st.session_state.answers = parse_merged_pdf(raw_text)
 
         progress_bar.progress(1.0)
         st.success("✅ Analysis Completed")
 
 # Start Test
-# Debug print (optional)
-# st.write("Questions:", len(st.session_state.questions), "Answers:", len(st.session_state.answers), "Started:", st.session_state.started)
-
-if not st.session_state.started:
-    if isinstance(st.session_state.questions, list) and len(st.session_state.questions) > 0 \
-        and isinstance(st.session_state.answers, dict) and len(st.session_state.answers) > 0:
-        if st.button("🚀 Start Test"):
-            st.session_state.index = 0
-            st.session_state.marked = {}
-            st.session_state.review = {}
-            st.session_state.started = True
-            st.session_state.time_left = int(set_time * 60)
-    else:
-        st.warning("⚠️ Could not parse questions or answers. Please recheck PDF formats.")
+if st.session_state.questions and st.session_state.answers and not st.session_state.started:
+    if st.button("🚀 Start Test"):
+        st.session_state.index = 0
+        st.session_state.marked = {}
+        st.session_state.review = {}
+        st.session_state.started = True
+        st.session_state.time_left = int(set_time * 60)
 
 # Countdown Timer
 if st.session_state.started:
