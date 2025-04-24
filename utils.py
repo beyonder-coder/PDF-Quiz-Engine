@@ -21,18 +21,18 @@ def parse_questions(raw_text):
         q_text = lines[0].strip()
         options = []
         
-        # Use regex to detect option format
         for line in lines[1:]:
             line = line.strip()
+            # Detect and remove prefix like 1), A), 2., B., etc.
             match = re.match(r"^(\d+|[A-Da-d])[).]\s*(.*)", line)
             if match:
-                option_label = match.group(1)
                 option_text = match.group(2).strip()
             else:
                 option_text = line
 
             options.append(option_text)
 
+        # Normalize to A) ..., B) ... format
         formatted_options = [f"{label}) {text}" for label, text in zip(option_prefixes, options)]
         questions.append({"question": q_text, "options": formatted_options})
     
