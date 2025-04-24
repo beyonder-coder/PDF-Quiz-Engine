@@ -1,12 +1,17 @@
 import PyPDF2
-import re
+import io
 
-# Function to extract text from PDF
 def extract_text_from_pdf(uploaded_pdf):
-    reader = PyPDF2.PdfReader(uploaded_pdf)
+    # Read the file content as bytes
+    pdf_bytes = uploaded_pdf.read()
+    # Use PdfReader to read from the bytes
+    reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
     text = ""
+    
+    # Loop through each page and extract text
     for page in reader.pages:
         text += page.extract_text() + "\n"
+    
     return text
 
 # Function to parse questions and answers from merged PDF
