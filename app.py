@@ -66,13 +66,20 @@ if uploaded_q_pdf and uploaded_a_pdf:
         st.success("✅ Analysis Completed")
 
 # Start Test
-if st.session_state.questions and st.session_state.answers and not st.session_state.started:
-    if st.button("🚀 Start Test"):
-        st.session_state.index = 0
-        st.session_state.marked = {}
-        st.session_state.review = {}
-        st.session_state.started = True
-        st.session_state.time_left = int(set_time * 60)
+# Debug print (optional)
+# st.write("Questions:", len(st.session_state.questions), "Answers:", len(st.session_state.answers), "Started:", st.session_state.started)
+
+if not st.session_state.started:
+    if isinstance(st.session_state.questions, list) and len(st.session_state.questions) > 0 \
+        and isinstance(st.session_state.answers, dict) and len(st.session_state.answers) > 0:
+        if st.button("🚀 Start Test"):
+            st.session_state.index = 0
+            st.session_state.marked = {}
+            st.session_state.review = {}
+            st.session_state.started = True
+            st.session_state.time_left = int(set_time * 60)
+    else:
+        st.warning("⚠️ Could not parse questions or answers. Please recheck PDF formats.")
 
 # Countdown Timer
 if st.session_state.started:
